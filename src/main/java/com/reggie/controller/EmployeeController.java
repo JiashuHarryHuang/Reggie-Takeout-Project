@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.net.http.HttpRequest;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 @RestController
 @RequestMapping("/employee")
@@ -37,6 +34,7 @@ public class EmployeeController {
         if (emp == null){
             return Result.error("登录失败");
         }
+
         //3. 根据密码查询数据库，如果为null则登录失败
         if (!emp.getPassword().equals(password)) {
             return Result.error("登录失败");
