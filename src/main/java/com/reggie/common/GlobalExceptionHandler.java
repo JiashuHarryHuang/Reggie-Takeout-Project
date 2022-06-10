@@ -12,12 +12,16 @@ import java.sql.SQLIntegrityConstraintViolationException;
 /**
  * 异常处理类
  */
-@ControllerAdvice(annotations = {RestController.class, Controller.class})
+@ControllerAdvice(annotations = {RestController.class, Controller.class}) //声明通知增强的类
 @ResponseBody //表明返回的是JSON数据
 @Slf4j
 public class GlobalExceptionHandler {
 
-    //sql异常处理方法
+    /**
+     * sql异常处理方法
+     * @param exception sql约束异常
+     * @return 带有异常信息的Result对象
+     */
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public Result<String> sqlExceptionHandler(SQLIntegrityConstraintViolationException exception) {
         log.error(exception.getMessage());

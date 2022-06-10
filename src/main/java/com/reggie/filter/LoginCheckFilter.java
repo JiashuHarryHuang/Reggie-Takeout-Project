@@ -22,7 +22,7 @@ public class LoginCheckFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         //1. 判断请求是否需处理，如果否则直接放行
         String requestURI = request.getRequestURI();
-        log.info("拦截到请求：{}", requestURI);
+//        log.info("拦截到请求：{}", requestURI);
 
         //不需要处理的路径
         String[] uris = {
@@ -36,17 +36,17 @@ public class LoginCheckFilter implements Filter {
 
         //对不需要处理的路径放行
         if (check) {
-            log.info("本次请求{}不需要处理", requestURI);
+//            log.info("本次请求{}不需要处理", requestURI);
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
 
         //2. 判断是否已登录，如果否则跳转登陆界面，是则放行
         if (request.getSession().getAttribute("employee") != null) {
-            log.info("用户已登录，id为{}", request.getSession().getAttribute("employee"));
+//            log.info("用户已登录，id为{}", request.getSession().getAttribute("employee"));
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
-            log.info("用户未登录");
+//            log.info("用户未登录");
             response.getWriter().write(JSON.toJSONString(Result.error("NOTLOGIN")));
         }
     }

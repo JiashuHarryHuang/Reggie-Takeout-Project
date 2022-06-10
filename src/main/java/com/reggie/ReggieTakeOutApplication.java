@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 
 @SpringBootApplication
-@ServletComponentScan
+@ServletComponentScan //让它扫描到Filter
 @Slf4j
 public class ReggieTakeOutApplication {
 
