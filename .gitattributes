@@ -3,5 +3,5 @@
 # *.vue linguist-detectable=false
 # *.html linguist-detectable=false
 # *.scss linguist-detectable=false
-src/main/resource/static/** linguist-detectable=false
+src/main/resources/static/** linguist-detectable=false
 *.java linguist-detectable=true
