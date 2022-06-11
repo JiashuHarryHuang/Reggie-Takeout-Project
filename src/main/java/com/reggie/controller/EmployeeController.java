@@ -89,14 +89,15 @@ public class EmployeeController {
         //设置员工初始密码并进行加密
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
 
-        //初始化创建及更新时间
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
 
-        //当前登录用户的id，也就是负责添加员工的人
-        Long currId = (Long) request.getSession().getAttribute("employee");
-        employee.setCreateUser(currId);
-        employee.setUpdateUser(currId);
+        //初始化创建及更新时间，已在MyMetaObjectHandler处理
+//        employee.setCreateTime(LocalDateTime.now());
+//        employee.setUpdateTime(LocalDateTime.now());
+//
+//        //当前登录用户的id，也就是负责添加员工的人
+//        Long currId = (Long) request.getSession().getAttribute("employee");
+//        employee.setCreateUser(currId);
+//        employee.setUpdateUser(currId);
 
         //调用service方法
         if(employeeService.save(employee)) {
@@ -143,10 +144,12 @@ public class EmployeeController {
     public Result<String> update(HttpServletRequest request, @RequestBody Employee employee) {
         log.info(employee.toString());
 
-        //更新“更新时间”和“负责更新的员工”
-        employee.setUpdateTime(LocalDateTime.now());
-        Long empId = (Long) request.getSession().getAttribute("employee");
-        employee.setUpdateUser(empId);
+        //更新“更新时间”和“负责更新的员工”，已在MyMetaObjectHandler处理
+//        employee.setUpdateTime(LocalDateTime.now());
+//        Long empId = (Long) request.getSession().getAttribute("employee");
+//        employee.setUpdateUser(empId);
+//        long id = Thread.currentThread().getId();
+//        log.info("当前线程: {}", id);
 
         //调用IService方法
         employeeService.updateById(employee);
