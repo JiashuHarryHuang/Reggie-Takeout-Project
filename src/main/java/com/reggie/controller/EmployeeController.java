@@ -115,7 +115,7 @@ public class EmployeeController {
      * @return 装有分页数据的Result对象
      */
     @GetMapping("/page")
-    public Result<Page<Employee>> selectByPage(int page, int pageSize, String name) {
+    public Result<Page<Employee>> getByPage(int page, int pageSize, String name) {
         log.info("page = {}, pageSize = {}, name = {}", page, pageSize, name);
 
         //1. 创建Page分页对象

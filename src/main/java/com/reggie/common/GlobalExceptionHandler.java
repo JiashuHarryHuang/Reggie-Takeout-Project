@@ -35,4 +35,15 @@ public class GlobalExceptionHandler {
 
         return Result.error("sql未知异常");
     }
+
+    /**
+     * 自定义异常处理方法
+     * @param exception 自定义异常
+     * @return
+     */
+    @ExceptionHandler(CustomException.class)
+    public Result<String> customExceptionHandler(CustomException exception) {
+        log.error(exception.getMessage());
+        return Result.error(exception.getMessage());
+    }
 }
