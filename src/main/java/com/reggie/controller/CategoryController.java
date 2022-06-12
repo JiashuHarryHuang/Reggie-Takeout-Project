@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/category")
 @Slf4j
@@ -70,5 +72,23 @@ public class CategoryController {
     public Result<String> update(@RequestBody Category category) {
         categoryService.updateById(category);
         return Result.success("修改成功");
+    }
+
+    /**
+     * 根据条件查询分类数据
+     * @param category 前端发来的type属性被封撞到了Category对象里
+     * @return 查询到的category的集合
+     */
+    @GetMapping("/list")
+    public Result<List<Category>> list(Category category) {
+        //条件构造器
+        LambdaQueryWrapper<Category> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        //添加条件: SELECT * FROM dish_flavor WHERE type = {type}
+        lambdaQueryWrapper.eq(category.getType() != null, Category::getType, category.getType());
+        //添加排序: SELECT * FROM dish_flavor WHERE type = {type} ORDER BY sort ASC, update_time DESC
+        lambdaQueryWrapper.orderByAsc(Category::getSort).orderByDesc(Category::getUpdateTime);
+        //调用方法
+        List<Category> categories = categoryService.list(lambdaQueryWrapper);
+        return Result.success(categories);
     }
 }
