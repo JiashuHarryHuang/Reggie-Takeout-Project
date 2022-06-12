@@ -30,7 +30,8 @@ public class LoginCheckFilter implements Filter {
                 "/employee/login",
                 "/employee/logout",
                 "/backend/**",
-                "/front/**"
+                "/front/**",
+                "/common/**"
         };
 
         boolean check = checkURI(uris, requestURI);
@@ -46,7 +47,7 @@ public class LoginCheckFilter implements Filter {
         Long empId = (Long) request.getSession().getAttribute("employee");
         if (empId != null) {
 //            log.info("用户已登录，id为{}", request.getSession().getAttribute("employee"));
-            BaseContext.setCurrentId(empId);
+            BaseContext.setCurrentId(empId); //将session的id存入ThreadLocal
             filterChain.doFilter(servletRequest, servletResponse);
 //            long id = Thread.currentThread().getId();
 //            log.info("当前线程: {}", id);

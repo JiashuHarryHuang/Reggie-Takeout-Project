@@ -52,5 +52,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, Category> impl
             //关联了套餐，抛出异常
             throw new CustomException("已关联套餐，不能删除");
         }
+
+        //正常删除
+        super.removeById(id);
     }
 }
