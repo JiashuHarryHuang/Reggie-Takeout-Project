@@ -142,7 +142,7 @@ public class EmployeeController {
      */
     @PutMapping
     public Result<String> update(HttpServletRequest request, @RequestBody Employee employee) {
-        log.info(employee.toString());
+        //log.info(employee.toString());
 
         //更新“更新时间”和“负责更新的员工”，已在MyMetaObjectHandler处理
 //        employee.setUpdateTime(LocalDateTime.now());
@@ -164,7 +164,7 @@ public class EmployeeController {
      */
     @GetMapping("/{id}")
     public Result<Employee> getById(@PathVariable Long id) {
-        log.info("根据id查询");
+        //log.info("根据id查询");
         Employee employee = employeeService.getById(id);
         if (employee != null) {
             return Result.success(employee);

@@ -57,8 +57,6 @@ public class CategoryController {
      */
     @DeleteMapping
     public Result<String> deleteById(@RequestParam("ids") Long id) {
-
-//        categoryService.removeById(id);
         categoryService.remove(id);
         return Result.success("删除成功");
     }
@@ -80,13 +78,13 @@ public class CategoryController {
      * @return 查询到的category的集合
      */
     @GetMapping("/list")
-    public Result<List<Category>> list(Category category) {
+    public Result<List<Category>> getByType(Category category) {
         //条件构造器
+        //SELECT * FROM dish_flavor WHERE type = {type} ORDER BY sort ASC, update_time DESC
         LambdaQueryWrapper<Category> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        //添加条件: SELECT * FROM dish_flavor WHERE type = {type}
         lambdaQueryWrapper.eq(category.getType() != null, Category::getType, category.getType());
-        //添加排序: SELECT * FROM dish_flavor WHERE type = {type} ORDER BY sort ASC, update_time DESC
         lambdaQueryWrapper.orderByAsc(Category::getSort).orderByDesc(Category::getUpdateTime);
+
         //调用方法
         List<Category> categories = categoryService.list(lambdaQueryWrapper);
         return Result.success(categories);

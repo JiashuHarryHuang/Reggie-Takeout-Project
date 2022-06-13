@@ -27,6 +27,11 @@ public class CommonController {
     @Value("${reggie.path}")
     private String basePath;
 
+    /**
+     * 上传图片，服务器将图片存储到指定地址
+     * @param pictureFile 前端传过来的File对象
+     * @return 成功信息
+     */
     @PostMapping("/upload")
     public Result<String> upload(@RequestParam("file") MultipartFile pictureFile) { //前端传过来的属性名叫file
         log.info(pictureFile.toString());
@@ -57,7 +62,7 @@ public class CommonController {
     }
 
     /**
-     * 下载图片/将图片回显到浏览器上
+     * 下载图片/将图片从服务器存储地址回显到浏览器上
      * @param name 文件名
      * @param response 响应对象
      */
