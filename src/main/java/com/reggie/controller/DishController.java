@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -94,15 +95,57 @@ public class DishController {
         return Result.success(dishDtoPage);
     }
 
+    /**
+     * 根据id查询菜品以及口味
+     * @param id 菜品id
+     * @return 封装了菜品和口味的DTO对象
+     */
     @GetMapping("/{id}")
     public Result<DishDto> getById(@PathVariable Long id) {
         DishDto dishDto = dishService.getByIdWithFlavor(id);
         return Result.success(dishDto);
     }
 
+    /**
+     * 修改菜品以及口味
+     * @param dishDto 封装了flavors和dish数据的DTO
+     */
     @PutMapping
     public Result<String> update(@RequestBody DishDto dishDto) {
         dishService.updateWithFlavor(dishDto);
         return Result.success("更新成功");
+    }
+
+    /**
+     * 删除菜品
+     * @param ids 前端的id数组
+     */
+    @DeleteMapping
+    public Result<String> deleteByIds(Long[] ids) {
+        dishService.deleteByIdsWithFlavor(ids);
+        return Result.success("删除成功");
+    }
+
+    @PostMapping("/status/{status}")
+    public Result<String> changeStatus(Long[] ids, @PathVariable int status) {
+        List<Dish> dishes = new ArrayList<>();
+
+        //遍历ids
+        for (Long id : ids) {
+            //把每个id存入一个dish对象
+            Dish dish = new Dish();
+            dish.setId(id);
+
+            //更新status
+            dish.setStatus(status);
+
+            //加入集合
+            dishes.add(dish);
+        }
+
+        //调用批量更新方法
+        dishService.updateBatchById(dishes);
+
+        return Result.success("状态更新成功");
     }
 }

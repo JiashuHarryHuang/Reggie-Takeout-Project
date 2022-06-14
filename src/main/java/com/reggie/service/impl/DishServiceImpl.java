@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -98,5 +99,23 @@ public class DishServiceImpl extends ServiceImpl<DishDao, Dish> implements DishS
         //将处理好的flavors存到数据库
         dishFlavorService.saveBatch(flavors);
 
+    }
+
+    /**
+     * 删除菜品
+     * @param ids 前端的id数组
+     */
+    @Override
+    @Transactional
+    public void deleteByIdsWithFlavor(Long[] ids) {
+        //删除dish数据
+        this.removeByIds(Arrays.stream(ids).toList());
+
+        //根据每个id删除flavor数据
+        for (Long id : ids) {
+            LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(DishFlavor::getDishId, id);
+            dishFlavorService.remove(queryWrapper);
+        }
     }
 }
