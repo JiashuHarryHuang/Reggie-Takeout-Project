@@ -10,9 +10,11 @@ import com.reggie.service.DishFlavorService;
 import com.reggie.service.DishService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,6 +23,9 @@ public class DishServiceImpl extends ServiceImpl<DishDao, Dish> implements DishS
 
     @Autowired
     private DishFlavorService dishFlavorService;
+
+    @Value("${reggie.path}")
+    private String basePath;
 
     /**
      * 新增菜品
@@ -108,14 +113,34 @@ public class DishServiceImpl extends ServiceImpl<DishDao, Dish> implements DishS
     @Override
     @Transactional
     public void deleteByIdsWithFlavor(Long[] ids) {
+        //根据id删除图片
+        this.removeFilesByIds(ids);
+
         //删除dish数据
         this.removeByIds(Arrays.stream(ids).toList());
 
         //根据每个id删除flavor数据
         for (Long id : ids) {
-            LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(DishFlavor::getDishId, id);
-            dishFlavorService.remove(queryWrapper);
+            LambdaQueryWrapper<DishFlavor> flavorWrapper = new LambdaQueryWrapper<>();
+            flavorWrapper.eq(DishFlavor::getDishId, id);
+            dishFlavorService.remove(flavorWrapper);
+        }
+    }
+
+    /**
+     * 根据id删除图片
+     * @param ids id数组
+     */
+    private void removeFilesByIds(Long[] ids) {
+        //根据id查询得到菜品集合
+        LambdaQueryWrapper<Dish> dishWrapper = new LambdaQueryWrapper<>();
+        dishWrapper.in(Dish::getId, ids);
+        List<Dish> dishes = this.list(dishWrapper);
+
+        //遍历菜品集合，根据每个菜品的图片名删除对应图片
+        for (Dish dish : dishes) {
+            File picture = new File(basePath + dish.getImage());
+            picture.delete();
         }
     }
 }
