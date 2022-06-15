@@ -28,7 +28,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, Category> impl
      * @param id 前端传进来的id
      */
     @Override
-    public void remove( Long id) {
+    public void remove(Long id) {
         //创建dish lqw
         LambdaQueryWrapper<Dish> dishLambdaQueryWrapper = new LambdaQueryWrapper<>();
         //添加查询条件

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -69,10 +70,7 @@ public class DishController {
         List<Dish> dishes = dishPage.getRecords();
 
         //用来装处理完的dishDto
-        List<DishDto> dishDtoList = new ArrayList<>();
-
-        //遍历菜品
-        for (Dish dish : dishes) {
+        List<DishDto> dishDtoList = dishes.stream().map((dish) -> {
             //将每个菜品数据复制到dishDto上
             DishDto dishDto = new DishDto();
             BeanUtils.copyProperties(dish, dishDto);
@@ -81,8 +79,8 @@ public class DishController {
             Long categoryId = dish.getCategoryId();
             Category category = categoryService.getById(categoryId);
             dishDto.setCategoryName(category.getName());
-            dishDtoList.add(dishDto);
-        }
+            return dishDto;
+        }).toList();
 
         //给dishDtoPage赋值
         dishDtoPage.setRecords(dishDtoList);
@@ -129,20 +127,15 @@ public class DishController {
      */
     @PostMapping("/status/{status}")
     public Result<String> changeStatus(Long[] ids, @PathVariable int status) {
-        List<Dish> dishes = new ArrayList<>();
-
-        //遍历ids
-        for (Long id : ids) {
+        List<Dish> dishes = Arrays.stream(ids).map((id) -> {
             //把每个id存入一个dish对象
             Dish dish = new Dish();
             dish.setId(id);
 
             //更新status
             dish.setStatus(status);
-
-            //加入集合
-            dishes.add(dish);
-        }
+            return dish;
+        }).toList();
 
         //调用批量更新方法
         dishService.updateBatchById(dishes);

@@ -59,7 +59,7 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealDao, Setmeal> impleme
         //select count(*) from setmeal where id in (1,2,3) and status = 1
         //查询套餐状态，确定是否可用删除
         //只有禁用状态可以删除
-        LambdaQueryWrapper<Setmeal> setmealWrapper = new LambdaQueryWrapper();
+        LambdaQueryWrapper<Setmeal> setmealWrapper = new LambdaQueryWrapper<>();
         setmealWrapper.in(Setmeal::getId,ids);
         setmealWrapper.eq(Setmeal::getStatus,1);
 
@@ -106,6 +106,10 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealDao, Setmeal> impleme
         return setmealDto;
     }
 
+    /**
+     * 修改套餐
+     * @param setmealDto 用户提交的DTO对象
+     */
     @Override
     public void updateWithDish(SetmealDto setmealDto) {
         //更新套餐数据

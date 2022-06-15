@@ -14,6 +14,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -109,9 +110,33 @@ public class SetmealController {
         return Result.success(setmealDto);
     }
 
+    /**
+     * 修改套餐
+     * @param setmealDto 用户提交的DTO对象
+     */
     @PutMapping
     public Result<String> update(@RequestBody SetmealDto setmealDto) {
         setmealService.updateWithDish(setmealDto);
+        return Result.success("修改成功");
+    }
+
+    /**
+     * 启用/禁用套餐
+     * @param ids id数组
+     * @param status 操作完成后的状态
+     * @return 成功信息
+     */
+    @PostMapping("/status/{status}")
+    public Result<String> changeStatus(@PathVariable int status, Long[] ids) {
+        List<Setmeal> setmeals = Arrays.stream(ids).map((id) -> {
+            Setmeal setmeal = new Setmeal();
+            setmeal.setId(id);
+            setmeal.setStatus(status);
+            return setmeal;
+        }).toList();
+
+        setmealService.updateBatchById(setmeals);
+
         return Result.success("修改成功");
     }
 }

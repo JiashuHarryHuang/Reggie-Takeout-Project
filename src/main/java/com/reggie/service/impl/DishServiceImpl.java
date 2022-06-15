@@ -6,15 +6,20 @@ import com.reggie.common.CustomException;
 import com.reggie.dao.DishDao;
 import com.reggie.domain.Dish;
 import com.reggie.domain.DishFlavor;
+import com.reggie.domain.Setmeal;
+import com.reggie.domain.SetmealDish;
 import com.reggie.dto.DishDto;
 import com.reggie.service.DishFlavorService;
 import com.reggie.service.DishService;
+import com.reggie.service.SetmealDishService;
+import com.reggie.service.SetmealService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.*;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +29,12 @@ public class DishServiceImpl extends ServiceImpl<DishDao, Dish> implements DishS
 
     @Autowired
     private DishFlavorService dishFlavorService;
+
+    @Autowired
+    private SetmealDishService setmealDishService;
+
+    @Autowired
+    private SetmealService setmealService;
 
     @Value("${reggie.path}")
     private String basePath;
@@ -119,10 +130,27 @@ public class DishServiceImpl extends ServiceImpl<DishDao, Dish> implements DishS
         LambdaQueryWrapper<Dish> dishWrapper = new LambdaQueryWrapper<>();
         dishWrapper.in(Dish::getId, ids);
         dishWrapper.eq(Dish::getStatus, 1);
-        int count = this.count(dishWrapper);
-        if(count > 0){
+
+        //判断菜品是否关联套擦
+        LambdaQueryWrapper<SetmealDish> setmealDishWrapper = new LambdaQueryWrapper<>();
+        setmealDishWrapper.in(SetmealDish::getDishId, ids);
+
+        List<Dish> dishes = this.list(dishWrapper);
+        List<SetmealDish> setmealDishList = setmealDishService.list(setmealDishWrapper);
+        if(dishes.size() > 0){
             //如果不能删除，抛出一个业务异常
             throw new CustomException("菜品正在售卖中，不能删除");
+        }
+
+        //如果关联套餐了，则判断套餐是否停用，如果未停用则抛出异常
+        if (setmealDishList.size() > 0) {
+            setmealDishList.forEach((setmealDish) -> {
+                Long setmealId = setmealDish.getSetmealId();
+                Setmeal setmeal = setmealService.getById(setmealId);
+                if (setmeal.getStatus() == 1) {
+                    throw new CustomException("菜品已关联套餐，不能删除");
+                }
+            });
         }
 
         //根据id删除图片
