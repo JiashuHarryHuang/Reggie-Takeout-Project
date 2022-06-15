@@ -85,4 +85,10 @@ public class SetmealController {
 
         return Result.success(setmealDtoPage);
     }
+
+    @DeleteMapping
+    public Result<String> deleteByIds(Long[] ids) {
+        setmealService.deleteByIdsWithDish(ids);
+        return Result.success("删除成功");
+    }
 }

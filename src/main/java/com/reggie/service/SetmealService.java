@@ -10,4 +10,6 @@ public interface SetmealService extends IService<Setmeal> {
      * @param setmealDto 封装了套餐和套餐菜品的数据
      */
     void saveWithDish(SetmealDto setmealDto);
+
+    void deleteByIdsWithDish(Long[] ids);
 }
