@@ -7,7 +7,6 @@ import com.reggie.domain.Category;
 import com.reggie.domain.Dish;
 import com.reggie.dto.DishDto;
 import com.reggie.service.CategoryService;
-import com.reggie.service.DishFlavorService;
 import com.reggie.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -24,9 +22,6 @@ import java.util.List;
 public class DishController {
     @Autowired
     private DishService dishService;
-
-    @Autowired
-    private DishFlavorService dishFlavorService;
 
     @Autowired
     private CategoryService categoryService;
@@ -126,6 +121,12 @@ public class DishController {
         return Result.success("删除成功");
     }
 
+    /**
+     * 启用/禁用菜品
+     * @param ids id数组
+     * @param status 操作完成后的状态
+     * @return 成功信息
+     */
     @PostMapping("/status/{status}")
     public Result<String> changeStatus(Long[] ids, @PathVariable int status) {
         List<Dish> dishes = new ArrayList<>();
@@ -147,5 +148,19 @@ public class DishController {
         dishService.updateBatchById(dishes);
 
         return Result.success("状态更新成功");
+    }
+
+    /**
+     * 根据分类id查询数据
+     * @param categoryId 分类id
+     * @return 菜品集合
+     */
+    @GetMapping("/list")
+    public Result<List<Dish>> getByList(Long categoryId) {
+        //设置条件查询: select * from dish where category_id = {category_id}
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Dish::getCategoryId, categoryId);
+        List<Dish> dishes = dishService.list(queryWrapper);
+        return Result.success(dishes);
     }
 }
