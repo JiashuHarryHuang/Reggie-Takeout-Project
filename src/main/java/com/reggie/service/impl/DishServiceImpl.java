@@ -2,6 +2,7 @@ package com.reggie.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.reggie.common.CustomException;
 import com.reggie.dao.DishDao;
 import com.reggie.domain.Dish;
 import com.reggie.domain.DishFlavor;
@@ -113,6 +114,17 @@ public class DishServiceImpl extends ServiceImpl<DishDao, Dish> implements DishS
     @Override
     @Transactional
     public void deleteByIdsWithFlavor(Long[] ids) {
+        //select count(*) from dish where id in {ids} and status = 1
+        //查询菜品状态，只有禁用状态可以删除
+        LambdaQueryWrapper<Dish> dishWrapper = new LambdaQueryWrapper<>();
+        dishWrapper.in(Dish::getId, ids);
+        dishWrapper.eq(Dish::getStatus, 1);
+        int count = this.count(dishWrapper);
+        if(count > 0){
+            //如果不能删除，抛出一个业务异常
+            throw new CustomException("菜品正在售卖中，不能删除");
+        }
+
         //根据id删除图片
         this.removeFilesByIds(ids);
 

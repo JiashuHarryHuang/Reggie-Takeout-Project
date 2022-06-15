@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.reggie.common.Result;
 import com.reggie.domain.Category;
 import com.reggie.domain.Setmeal;
+import com.reggie.dto.DishDto;
 import com.reggie.dto.SetmealDto;
 import com.reggie.service.CategoryService;
 import com.reggie.service.SetmealService;
@@ -86,9 +87,31 @@ public class SetmealController {
         return Result.success(setmealDtoPage);
     }
 
+    /**
+     * 根据id删除
+     * @param ids id数组
+     * @return 成功信息
+     */
     @DeleteMapping
     public Result<String> deleteByIds(Long[] ids) {
         setmealService.deleteByIdsWithDish(ids);
         return Result.success("删除成功");
+    }
+
+    /**
+     * 根据id查询套餐
+     * @param id 套餐id
+     * @return 封装了菜品和套餐的对象
+     */
+    @GetMapping("/{id}")
+    public Result<SetmealDto> getById(@PathVariable Long id) {
+        SetmealDto setmealDto = setmealService.getByIdWithDish(id);
+        return Result.success(setmealDto);
+    }
+
+    @PutMapping
+    public Result<String> update(@RequestBody SetmealDto setmealDto) {
+        setmealService.updateWithDish(setmealDto);
+        return Result.success("修改成功");
     }
 }
