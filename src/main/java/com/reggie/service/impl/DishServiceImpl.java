@@ -135,22 +135,16 @@ public class DishServiceImpl extends ServiceImpl<DishDao, Dish> implements DishS
         LambdaQueryWrapper<SetmealDish> setmealDishWrapper = new LambdaQueryWrapper<>();
         setmealDishWrapper.in(SetmealDish::getDishId, ids);
 
-        List<Dish> dishes = this.list(dishWrapper);
-        List<SetmealDish> setmealDishList = setmealDishService.list(setmealDishWrapper);
-        if(dishes.size() > 0){
-            //如果不能删除，抛出一个业务异常
+        int count1 = this.count(dishWrapper);
+        int count2 = setmealDishService.count(setmealDishWrapper);
+        if(count1 > 0){
+            //如果是启用状态，抛出一个业务异常
             throw new CustomException("菜品正在售卖中，不能删除");
         }
 
-        //如果关联套餐了，则判断套餐是否停用，如果未停用则抛出异常
-        if (setmealDishList.size() > 0) {
-            setmealDishList.forEach((setmealDish) -> {
-                Long setmealId = setmealDish.getSetmealId();
-                Setmeal setmeal = setmealService.getById(setmealId);
-                if (setmeal.getStatus() == 1) {
-                    throw new CustomException("菜品已关联套餐，不能删除");
-                }
-            });
+        //如果关联套餐在，则抛出异常
+        if (count2 > 0) {
+            throw new CustomException("菜品已关联套餐，不能删除");
         }
 
         //根据id删除图片

@@ -111,6 +111,7 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealDao, Setmeal> impleme
      * @param setmealDto 用户提交的DTO对象
      */
     @Override
+    @Transactional
     public void updateWithDish(SetmealDto setmealDto) {
         //更新套餐数据
         this.updateById(setmealDto);
