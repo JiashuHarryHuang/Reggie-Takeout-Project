@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.reggie.common.Result;
 import com.reggie.domain.Category;
 import com.reggie.domain.Setmeal;
+import com.reggie.domain.SetmealDish;
 import com.reggie.dto.DishDto;
 import com.reggie.dto.SetmealDto;
 import com.reggie.service.CategoryService;
+import com.reggie.service.SetmealDishService;
 import com.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -28,6 +30,9 @@ public class SetmealController {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private SetmealDishService setmealDishService;
+
     /**
      * 新增套餐操作
      * @param setmealDto 封装了套餐和套餐菜品的数据
@@ -35,6 +40,7 @@ public class SetmealController {
      */
     @PostMapping
     public Result<String> save(@RequestBody SetmealDto setmealDto) {
+        log.info("新增套餐{}", setmealDto.getName());
         setmealService.saveWithDish(setmealDto);
         return Result.success("新增成功");
     }
@@ -48,6 +54,8 @@ public class SetmealController {
      */
     @GetMapping("/page")
     public Result<Page<SetmealDto>> getByPage(int page, int pageSize, String name) {
+        log.info("page = {}, pageSize = {}, name = {}", page, pageSize, name);
+
         //创建page对象
         Page<Setmeal> setmealPage = new Page<>(page, pageSize);
 
@@ -95,6 +103,7 @@ public class SetmealController {
      */
     @DeleteMapping
     public Result<String> deleteByIds(Long[] ids) {
+        log.info("根据id删除菜品：{}", Arrays.toString(ids));
         setmealService.deleteByIdsWithDish(ids);
         return Result.success("删除成功");
     }
@@ -106,6 +115,7 @@ public class SetmealController {
      */
     @GetMapping("/{id}")
     public Result<SetmealDto> getById(@PathVariable Long id) {
+        log.info("查询id为{}的菜品", id);
         SetmealDto setmealDto = setmealService.getByIdWithDish(id);
         return Result.success(setmealDto);
     }
@@ -116,6 +126,7 @@ public class SetmealController {
      */
     @PutMapping
     public Result<String> update(@RequestBody SetmealDto setmealDto) {
+        log.info("更新菜品：{}", setmealDto.getName());
         setmealService.updateWithDish(setmealDto);
         return Result.success("修改成功");
     }
@@ -128,6 +139,9 @@ public class SetmealController {
      */
     @PostMapping("/status/{status}")
     public Result<String> changeStatus(@PathVariable int status, Long[] ids) {
+        log.info("根据id启用/禁用菜品: {}", Arrays.toString(ids));
+
+        //把ids和status封装到一个Setmeal集合
         List<Setmeal> setmeals = Arrays.stream(ids).map((id) -> {
             Setmeal setmeal = new Setmeal();
             setmeal.setId(id);
@@ -135,8 +149,28 @@ public class SetmealController {
             return setmeal;
         }).toList();
 
+        //集合更新
         setmealService.updateBatchById(setmeals);
 
         return Result.success("修改成功");
+    }
+
+    /**
+     * 根据分类id查询套餐
+     * @param setmeal 封装了分类id和状态数据
+     * @return 符合条件的套餐集合
+     */
+    @GetMapping("/list")
+    public Result<List<Setmeal>> getSetmealDish(Setmeal setmeal) {
+        log.info("根据分类id为{}查询菜品", setmeal.getCategoryId());
+
+        //添加条件: SELECT * FROM setmeal WHERE category_id = ? AND status = ? ORDER BY update_time DESC
+        LambdaQueryWrapper<Setmeal> setmealWrapper = new LambdaQueryWrapper<>();
+        setmealWrapper.eq(setmeal.getCategoryId() != null, Setmeal::getCategoryId, setmeal.getCategoryId());
+        setmealWrapper.eq(setmeal.getStatus() != null, Setmeal::getStatus, setmeal.getStatus());
+        setmealWrapper.orderByDesc(Setmeal::getUpdateTime);
+
+        List<Setmeal> setmeals = setmealService.list(setmealWrapper);
+        return Result.success(setmeals);
     }
 }

@@ -32,6 +32,7 @@ public class EmployeeController {
     @PostMapping("/login")
     //Use request to store data into session
     public Result<Employee> login(HttpServletRequest request, @RequestBody Employee employee) {
+        log.info("用户登录");
         //1. 将密码加密
         String password = employee.getPassword();
         password = DigestUtils.md5DigestAsHex(password.getBytes());
@@ -70,6 +71,7 @@ public class EmployeeController {
      */
     @PostMapping("/logout")
     public Result<String> logout(HttpServletRequest request) {
+        log.info("用户已登出");
         //1. 释放session数据
         request.getSession().removeAttribute("employee");
         //2. 返回结果
@@ -84,7 +86,7 @@ public class EmployeeController {
      */
     @PostMapping
     public Result<String> save(HttpServletRequest request, @RequestBody Employee employee) {
-//        log.info("新增员工：{}", employee.toString());
+        log.info("新增员工：{}", employee.toString());
 
         //设置员工初始密码并进行加密
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
@@ -142,7 +144,7 @@ public class EmployeeController {
      */
     @PutMapping
     public Result<String> update(HttpServletRequest request, @RequestBody Employee employee) {
-        //log.info(employee.toString());
+        log.info("更新id为{}的员工信息", employee.getId());
 
         //更新“更新时间”和“负责更新的员工”，已在MyMetaObjectHandler处理
 //        employee.setUpdateTime(LocalDateTime.now());
@@ -164,7 +166,7 @@ public class EmployeeController {
      */
     @GetMapping("/{id}")
     public Result<Employee> getById(@PathVariable Long id) {
-        //log.info("根据id查询");
+        log.info("根据id查询");
         Employee employee = employeeService.getById(id);
         if (employee != null) {
             return Result.success(employee);

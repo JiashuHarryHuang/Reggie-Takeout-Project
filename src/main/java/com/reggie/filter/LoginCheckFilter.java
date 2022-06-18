@@ -17,6 +17,7 @@ import java.io.IOException;
 public class LoginCheckFilter implements Filter {
     //用于做路径比较的工具类，支持通配符
     public static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
@@ -63,17 +64,20 @@ public class LoginCheckFilter implements Filter {
             log.info("用户未登录");
             response.getWriter().write(JSON.toJSONString(Result.error("NOTLOGIN")));
         }
+
+
     }
 
     /**
      * 判断当前请求路径是否在需要放行的路径数组里
-     * @param uris 需要放行的路径
+     *
+     * @param uris       需要放行的路径
      * @param requestURI 当前请求路径
      * @return 当前请求路径是否在需要放行的路径数组里
      */
     private boolean checkURI(String[] uris, String requestURI) {
         for (String uri : uris) {
-            if (PATH_MATCHER.match(uri, requestURI)){
+            if (PATH_MATCHER.match(uri, requestURI)) {
                 return true;
             }
         }

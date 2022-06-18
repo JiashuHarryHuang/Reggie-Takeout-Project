@@ -33,6 +33,7 @@ public class UserController {
      */
     @PostMapping("/sendMsg")
     public Result<String> sendMsg(@RequestBody User user, HttpSession session) {
+        log.info("发送验证码");
 
         //获取手机号
         String phone = user.getPhone();
@@ -49,6 +50,7 @@ public class UserController {
 
             //需要将生成的验证码保存到Session
             session.setAttribute(phone,code);
+            log.info((String) session.getAttribute(phone));
 
             return Result.success("手机验证码短信发送成功");
         }
@@ -63,6 +65,7 @@ public class UserController {
      */
     @RequestMapping("/login")
     public Result<String> login(@RequestBody Map<String, String> user, HttpSession session) {
+        log.info("用户登录");
         //获取用户输入的验证码
         String enteredCode = user.get("code");
 
@@ -92,5 +95,17 @@ public class UserController {
             return Result.success("登陆成功");
         }
         return Result.error("登录失败");
+    }
+
+    /**
+     * 登出操作
+     * @param session 会话
+     * @return 成功信息
+     */
+    @PostMapping("/loginout")
+    public Result<String> logout(HttpSession session) {
+        log.info("用户已登出");
+        session.removeAttribute("user");
+        return Result.success("登出成功");
     }
 }

@@ -34,7 +34,7 @@ public class CommonController {
      */
     @PostMapping("/upload")
     public Result<String> upload(@RequestParam("file") MultipartFile pictureFile) { //前端传过来的属性名叫file
-        log.info(pictureFile.toString());
+        log.info("正在上传图片：{}", pictureFile.toString());
 
         //获取原始文件名
         String originalFilename = pictureFile.getOriginalFilename();
@@ -68,6 +68,7 @@ public class CommonController {
      */
     @GetMapping("/download")
     public void download(String name, HttpServletResponse response) {
+        log.info("正在下载图片：{}", name);
         try {
             //输入流，读取文件内容
             //basePath + name直接找到文件

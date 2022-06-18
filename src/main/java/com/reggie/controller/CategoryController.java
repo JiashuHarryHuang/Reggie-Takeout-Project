@@ -38,6 +38,8 @@ public class CategoryController {
      */
     @GetMapping("/page")
     public Result<Page<Category>> getByPage(int page, int pageSize) {
+        log.info("当前页：{}", page);
+        log.info("每页条数：{}", pageSize);
         Page<Category> pageInfo = new Page<>(page, pageSize);
 
         //添加排序条件
@@ -57,6 +59,7 @@ public class CategoryController {
      */
     @DeleteMapping
     public Result<String> deleteById(@RequestParam("ids") Long id) {
+        log.info("删除id为{}的分类", id);
         categoryService.remove(id);
         return Result.success("删除成功");
     }
@@ -68,17 +71,19 @@ public class CategoryController {
      */
     @PutMapping
     public Result<String> update(@RequestBody Category category) {
+        log.info("更新分类：{}", category.toString());
         categoryService.updateById(category);
         return Result.success("修改成功");
     }
 
     /**
      * 根据条件查询分类数据
-     * @param category 前端发来的type属性被封撞到了Category对象里
+     * @param category 前端发来的type属性被封装到了Category对象里
      * @return 查询到的category的集合
      */
     @GetMapping("/list")
     public Result<List<Category>> getByType(Category category) {
+        log.info("查询类别为{}的分类", category.getType());
         //条件构造器
         //SELECT * FROM dish_flavor WHERE type = {type} ORDER BY sort ASC, update_time DESC
         LambdaQueryWrapper<Category> lambdaQueryWrapper = new LambdaQueryWrapper<>();

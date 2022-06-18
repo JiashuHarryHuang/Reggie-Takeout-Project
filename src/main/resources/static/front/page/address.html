@@ -35,7 +35,7 @@
                         <span>{{item.sex === '0' ? '女士' : '先生'}}</span>
                         <span>{{item.phone}}</span>
                     </div>
-                    <img src="../images/edit.png" @click.stop.prevent="toAddressEditPage(item)"/>
+                    <img src="../images/edit.png" @click="toAddressEditPage(item)"/>
                     <div class="divSplit"></div>
                     <div class="divDefault" >
                         <img src="../images/checked_true.png" v-if="item.isDefault === 1">
@@ -117,7 +117,7 @@
                     },
                     toAddressEditPage(item){
                         window.requestAnimationFrame(()=>{
-                            window.location.href= `address-edit.html`
+                            window.location.href= `/front/page/address-edit.html?id=${item.id}`
                         })
                     },
                     toAddressCreatePage(){

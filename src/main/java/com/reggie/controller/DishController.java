@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.reggie.common.Result;
 import com.reggie.domain.Category;
 import com.reggie.domain.Dish;
+import com.reggie.domain.DishFlavor;
 import com.reggie.dto.DishDto;
 import com.reggie.service.CategoryService;
+import com.reggie.service.DishFlavorService;
 import com.reggie.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @RestController
 @RequestMapping("/dish")
@@ -27,6 +31,9 @@ public class DishController {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private DishFlavorService dishFlavorService;
+
     /**
      * 新增菜品
      * @param dishDto 包含菜品与口味的数据
@@ -34,6 +41,7 @@ public class DishController {
      */
     @PostMapping
     public Result<String> save(@RequestBody DishDto dishDto) {
+        log.info("新增菜品: {}", dishDto);
         dishService.saveWithFlavor(dishDto);
         return Result.success("新增成功");
     }
@@ -47,6 +55,7 @@ public class DishController {
      */
     @GetMapping("/page")
     public Result<Page<DishDto>> getByPage(int page, int pageSize, String name) {
+        log.info("分页查询：当前页为{}", page);
 
         //创建page对象
         Page<Dish> dishPage = new Page<>(page, pageSize);
@@ -78,7 +87,9 @@ public class DishController {
             //根据菜品id查找到分类名，再给dishDto赋值
             Long categoryId = dish.getCategoryId();
             Category category = categoryService.getById(categoryId);
-            dishDto.setCategoryName(category.getName());
+            if (category != null) {
+                dishDto.setCategoryName(category.getName());
+            }
             return dishDto;
         }).toList();
 
@@ -95,6 +106,7 @@ public class DishController {
      */
     @GetMapping("/{id}")
     public Result<DishDto> getById(@PathVariable Long id) {
+        log.info("查询id为{}的菜品", id);
         DishDto dishDto = dishService.getByIdWithFlavor(id);
         return Result.success(dishDto);
     }
@@ -105,6 +117,7 @@ public class DishController {
      */
     @PutMapping
     public Result<String> update(@RequestBody DishDto dishDto) {
+        log.info("更新菜品：{}", dishDto.getName());
         dishService.updateWithFlavor(dishDto);
         return Result.success("更新成功");
     }
@@ -115,6 +128,7 @@ public class DishController {
      */
     @DeleteMapping
     public Result<String> deleteByIds(Long[] ids) {
+        log.info("根据id删除菜品：{}", Arrays.toString(ids));
         dishService.deleteByIdsWithFlavor(ids);
         return Result.success("删除成功");
     }
@@ -127,6 +141,8 @@ public class DishController {
      */
     @PostMapping("/status/{status}")
     public Result<String> changeStatus(Long[] ids, @PathVariable int status) {
+        log.info("根据id启用/禁用菜品: {}", Arrays.toString(ids));
+
         List<Dish> dishes = Arrays.stream(ids).map((id) -> {
             //把每个id存入一个dish对象
             Dish dish = new Dish();
@@ -145,15 +161,42 @@ public class DishController {
 
     /**
      * 根据分类id查询数据
-     * @param categoryId 分类id
-     * @return 菜品集合
+     * @param dish 封装了分类id
+     * @return 菜品DTO集合
      */
     @GetMapping("/list")
-    public Result<List<Dish>> getByList(Long categoryId) {
+    public Result<List<DishDto>> getByList(Dish dish) {
+        log.info("根据分类id为{}查询菜品", dish.getCategoryId());
+
         //设置条件查询: select * from dish where category_id = {category_id}
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Dish::getCategoryId, categoryId);
+        queryWrapper.eq(Dish::getCategoryId, dish.getCategoryId());
         List<Dish> dishes = dishService.list(queryWrapper);
-        return Result.success(dishes);
+
+        //遍历菜品集合，对每个菜品进行查询然后封装到DishDto对象里
+        List<DishDto> dishDtoList = dishes.stream().map((eachDish) -> {
+            DishDto dishDto = new DishDto();
+            BeanUtils.copyProperties(eachDish, dishDto);
+
+            //给categoryName属性赋值
+            Long categoryId = eachDish.getCategoryId();
+            Category category = categoryService.getById(categoryId);
+            if (category != null) {
+                String categoryName = category.getName();
+                dishDto.setCategoryName(categoryName);
+            }
+
+            //添加条件：SELECT * FROM dish_flavor WHERE dish_id = ?
+            Long dishId = eachDish.getId();
+            LambdaQueryWrapper<DishFlavor> dishFlavorWrapper = new LambdaQueryWrapper<>();
+            dishFlavorWrapper.eq(DishFlavor::getDishId, dishId);
+            List<DishFlavor> dishFlavors = dishFlavorService.list(dishFlavorWrapper);
+
+            //给flavors属性赋值
+            dishDto.setFlavors(dishFlavors);
+            return dishDto;
+        }).toList();
+
+        return Result.success(dishDtoList);
     }
 }
