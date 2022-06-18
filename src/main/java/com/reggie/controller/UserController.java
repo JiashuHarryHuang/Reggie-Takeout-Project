@@ -50,7 +50,6 @@ public class UserController {
 
             //需要将生成的验证码保存到Session
             session.setAttribute(phone,code);
-            log.info((String) session.getAttribute(phone));
 
             return Result.success("手机验证码短信发送成功");
         }
