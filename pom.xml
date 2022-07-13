@@ -14,7 +14,7 @@
 	<name>reggie_take_out</name>
 	<description>reggie_take_out</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>18</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
