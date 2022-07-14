@@ -13,6 +13,8 @@ import com.reggie.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,13 +48,14 @@ public class DishController {
      * @return 成功信息
      */
     @PostMapping
+    @CacheEvict(value = "dishCache", allEntries = true)
     public Result<String> save(@RequestBody DishDto dishDto) {
         log.info("新增菜品: {}", dishDto);
         dishService.saveWithFlavor(dishDto);
 
-        //精确清理缓存
-        String key = "dish_" + dishDto.getCategoryId() + "_1";
-        redisTemplate.delete(key);
+        //清理所有Redis缓存
+        //Set keys = redisTemplate.keys("dish_*");
+        //redisTemplate.delete(keys);
 
         return Result.success("新增成功");
     }
@@ -127,6 +130,7 @@ public class DishController {
      * @param dishDto 封装了flavors和dish数据的DTO
      */
     @PutMapping
+    @CacheEvict(value = "dishCache", key = "#dishDto.categoryId + '_1'")
     public Result<String> update(@RequestBody DishDto dishDto) {
         log.info("更新菜品：{}", dishDto.getName());
         dishService.updateWithFlavor(dishDto);
@@ -136,8 +140,8 @@ public class DishController {
         //redisTemplate.delete(keys);
 
         //精确清理缓存
-        String key = "dish_" + dishDto.getCategoryId() + "_1";
-        redisTemplate.delete(key);
+        //String key = "dish_" + dishDto.getCategoryId() + "_1";
+        //redisTemplate.delete(key);
 
         return Result.success("更新成功");
     }
@@ -147,13 +151,14 @@ public class DishController {
      * @param ids 前端的id数组
      */
     @DeleteMapping
+    @CacheEvict(value = "dishCache", allEntries = true)
     public Result<String> deleteByIds(Long[] ids) {
         log.info("根据id删除菜品：{}", Arrays.toString(ids));
         dishService.deleteByIdsWithFlavor(ids);
 
         //清理所有Redis缓存
-        Set keys = redisTemplate.keys("dish_*");
-        redisTemplate.delete(keys);
+        //Set keys = redisTemplate.keys("dish_*");
+        //redisTemplate.delete(keys);
 
         return Result.success("删除成功");
     }
@@ -165,6 +170,7 @@ public class DishController {
      * @return 成功信息
      */
     @PostMapping("/status/{status}")
+    @CacheEvict(value = "dishCache", allEntries = true)
     public Result<String> changeStatus(Long[] ids, @PathVariable int status) {
         log.info("根据id启用/禁用菜品: {}", Arrays.toString(ids));
 
@@ -182,8 +188,8 @@ public class DishController {
         dishService.updateBatchById(dishes);
 
         //清理所有Redis缓存
-        Set keys = redisTemplate.keys("dish_*");
-        redisTemplate.delete(keys);
+        //Set keys = redisTemplate.keys("dish_*");
+        //isTemplate.delete(keys);
 
         return Result.success("状态更新成功");
     }
@@ -194,21 +200,22 @@ public class DishController {
      * @return 菜品DTO集合
      */
     @GetMapping("/list")
+    @Cacheable(value = "dishCache", key = "#dish.categoryId + '_' + #dish.status")
     public Result<List<DishDto>> getByList(Dish dish) {
         log.info("根据分类id为{}查询菜品", dish.getCategoryId());
 
-        List<DishDto> dishDtoList = null;
+        List<DishDto> dishDtoList;
 
         //构造key
-        String key = "dish_" + dish.getCategoryId() + "_" + dish.getStatus();
+        //String key = "dish_" + dish.getCategoryId() + "_" + dish.getStatus();
 
         //从Redis 获取缓存数据
-        dishDtoList = (List<DishDto>) redisTemplate.opsForValue().get(key);
+        //dishDtoList = (List<DishDto>) redisTemplate.opsForValue().get(key);
 
         //如果存在，则直接返回
-        if (dishDtoList != null) {
-            return Result.success(dishDtoList);
-        }
+        //if (dishDtoList != null) {
+            //return Result.success(dishDtoList);
+        //}
 
         //如果不存在，则查询数据库
 
@@ -242,7 +249,7 @@ public class DishController {
         }).toList();
 
         //缓存到Redis
-        redisTemplate.opsForValue().set(key, dishDtoList, 60, TimeUnit.MINUTES);
+        //redisTemplate.opsForValue().set(key, dishDtoList, 60, TimeUnit.MINUTES);
 
         return Result.success(dishDtoList);
     }

@@ -14,6 +14,9 @@ import com.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -31,7 +34,7 @@ public class SetmealController {
     private CategoryService categoryService;
 
     @Autowired
-    private SetmealDishService setmealDishService;
+    private CacheManager cacheManager;
 
     /**
      * 新增套餐操作
@@ -39,6 +42,7 @@ public class SetmealController {
      * @return 成功信息
      */
     @PostMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public Result<String> save(@RequestBody SetmealDto setmealDto) {
         log.info("新增套餐{}", setmealDto.getName());
         setmealService.saveWithDish(setmealDto);
@@ -102,6 +106,7 @@ public class SetmealController {
      * @return 成功信息
      */
     @DeleteMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public Result<String> deleteByIds(Long[] ids) {
         log.info("根据id删除菜品：{}", Arrays.toString(ids));
         setmealService.deleteByIdsWithDish(ids);
@@ -125,6 +130,7 @@ public class SetmealController {
      * @param setmealDto 用户提交的DTO对象
      */
     @PutMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public Result<String> update(@RequestBody SetmealDto setmealDto) {
         log.info("更新菜品：{}", setmealDto.getName());
         setmealService.updateWithDish(setmealDto);
@@ -161,6 +167,7 @@ public class SetmealController {
      * @return 符合条件的套餐集合
      */
     @GetMapping("/list")
+    @Cacheable(value = "setmealCache", key = "#setmeal.categoryId + '_' + #setmeal.status")
     public Result<List<Setmeal>> getSetmealDish(Setmeal setmeal) {
         log.info("根据分类id为{}查询菜品", setmeal.getCategoryId());
 
