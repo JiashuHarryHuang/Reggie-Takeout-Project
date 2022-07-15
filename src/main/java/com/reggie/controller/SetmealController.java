@@ -144,6 +144,7 @@ public class SetmealController {
      * @return 成功信息
      */
     @PostMapping("/status/{status}")
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public Result<String> changeStatus(@PathVariable int status, Long[] ids) {
         log.info("根据id启用/禁用菜品: {}", Arrays.toString(ids));
 
