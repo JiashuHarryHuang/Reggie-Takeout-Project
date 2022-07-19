@@ -52,4 +52,4 @@ mybatis-plus:
       id-type: ASSIGN_ID
 reggie:
   #图片存放地址
-  path: D:\Harry\Dark-Horse\Projects\reggie_take_out\img\
+  path: img\

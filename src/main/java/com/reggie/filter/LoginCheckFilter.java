@@ -24,7 +24,7 @@ public class LoginCheckFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         //1. 判断请求是否需处理，如果否则直接放行
         String requestURI = request.getRequestURI();
-        //log.info("拦截到请求：{}", requestURI);
+        log.info("拦截到请求：{}", requestURI);
 
         //不需要处理的路径
         String[] uris = {
@@ -34,7 +34,11 @@ public class LoginCheckFilter implements Filter {
                 "/front/**",
                 "/common/**",
                 "/user/sendMsg",
-                "/user/login"
+                "/user/login",
+                "/doc.html",
+                "/webjars/**",
+                "/swagger-resources",
+                "/v2/api-docs"
         };
 
         boolean check = checkURI(uris, requestURI);
