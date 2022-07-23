@@ -88,7 +88,7 @@
 			<version>1.1.23</version>
 		</dependency>
 
-		<!--aliyun-->
+		<!--aliyun message-->
 		<dependency>
 			<groupId>com.aliyun</groupId>
 			<artifactId>aliyun-java-sdk-core</artifactId>

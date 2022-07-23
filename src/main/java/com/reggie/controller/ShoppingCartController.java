@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -89,12 +90,14 @@ public class ShoppingCartController {
      * @return 删除成功信息
      */
     @PostMapping("/sub")
-    public Result<String> subtract(@RequestBody ShoppingCart shoppingCart) {
+    public Result<String> subtract(@RequestBody ShoppingCart shoppingCart, HttpSession session) {
         log.info("从购物车移除菜品：{}", shoppingCart.toString());
 
         //判断需要删除的是菜品还是套餐
         Long dishId = shoppingCart.getDishId();
+        Long userId = (Long) session.getAttribute("user");
         LambdaQueryWrapper<ShoppingCart> shoppingCartWrapper = new LambdaQueryWrapper<>();
+        shoppingCartWrapper.eq(ShoppingCart::getUserId, userId);
         if (dishId != null) {
             //添加条件：SELECT FROM shopping_cart WHERE dish_id = ?
             shoppingCartWrapper.eq(ShoppingCart::getDishId, dishId);
